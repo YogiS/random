@@ -1,0 +1,35 @@
+#!/usr/bin/python
+
+import subprocess, tempfile, sys, os, getpass
+
+user=getpass.getuser()
+
+handle=tempfile.NamedTemporaryFile(suffix='.log',prefix='krb_debug_',dir='/tmp',delete=False)
+
+cmd_tee = ['tee','-a',handle.name]
+cmd_echo = ['/bin/echo ']
+
+print 'Output will be logged to ' + handle.name
+
+cmd0 = ['/usr/bin/dig','SRV', '_ldap._tcp.ad.corp.foobar.com', '+short']
+cmd1 = ['/bin/date']
+cmd2 = ['ls','-al','/etc/krb5.conf']
+cmd3 = ['/bin/cat','/etc/krb5.conf']
+cmd4 = ['/usr/bin/klist']
+cmd5 = ['/bin/ls','-al','/var/run/resolv.conf']
+cmd6 = ['/bin/cat','/var/run/resolv.conf']
+cmd7 = ['/usr/bin/odutil','set','log','debug']
+cmd8 = ['/usr/bin/curl','--negotiate','-u:','https://weblogin.corp.foobar.com/negotiate/resource.txt']
+cmd9 = ['/usr/bin/klist']
+cmd10 = ['/usr/sbin/scutil','--dns']
+
+cmd_list=[cmd1,cmd0,cmd2,cmd3,cmd4,cmd5,cmd6,cmd7,cmd8,cmd9,cmd10]
+
+for cmd in cmd_list:
+	proc1=subprocess.Popen(cmd,stdout=subprocess.PIPE)
+	proc2=subprocess.Popen(cmd_tee, stdin=proc1.stdout, stdout=sys.stdout)
+	out,error=proc2.communicate()
+	handle.flush()
+
+handle.close()
+
