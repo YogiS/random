@@ -1,0 +1,4 @@
+#To map pid to container
+#first find the pid of the process
+#following runs docker inspect on all containers and outputs continerid to process id map
+docker ps -q |xargs docker inspect --format '{{.State.Pid}}, {{.ID}}' |grep <pid>
